@@ -11,11 +11,14 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 
 
 public class FactionsBlockListener implements Listener {
@@ -129,6 +132,23 @@ public class FactionsBlockListener implements Listener {
         if (!canPistonMoveBlock(pistonFaction, targetLoc)) {
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onItemFrameUse(PlayerInteractEntityEvent event) {
+        if (!(event.getRightClicked() instanceof ItemFrame)) return;
+        ItemFrame frame = (ItemFrame)event.getRightClicked();
+        if (!playerCanBuildDestroyBlock(event.getPlayer(),frame.getLocation(),"interact with item frames",false))
+            event.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onItemFrameUse(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof ItemFrame)) return;
+        if (!(event.getDamager() instanceof Player)) return;
+        Player damager = (Player)event.getDamager();
+        if (!(playerCanBuildDestroyBlock(damager,event.getEntity().getLocation(),"interact with item frames",false)))
+            event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
